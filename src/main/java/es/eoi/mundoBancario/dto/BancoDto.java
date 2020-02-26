@@ -7,8 +7,6 @@ import lombok.Setter;
 @Setter
 public class BancoDto {
 
-	private int id;
-	
 	private String nombre;
 
 	private String ciudad;

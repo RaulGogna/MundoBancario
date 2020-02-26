@@ -1,6 +1,7 @@
 package es.eoi.mundoBancario.controller;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -16,12 +17,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import es.eoi.mundoBancario.dto.BancoDto;
-import es.eoi.mundoBancario.dto.ClienteDto;
 import es.eoi.mundoBancario.dto.CuentaDto;
 import es.eoi.mundoBancario.entity.Banco;
 import es.eoi.mundoBancario.entity.Cliente;
 import es.eoi.mundoBancario.entity.Cuenta;
+import es.eoi.mundoBancario.service.BancoService;
+import es.eoi.mundoBancario.service.ClienteService;
 import es.eoi.mundoBancario.service.CuentaService;
 
 @RestController
@@ -29,22 +30,40 @@ import es.eoi.mundoBancario.service.CuentaService;
 public class CuentaController {
 
 	@Autowired
-	private CuentaService service;
+	private CuentaService cuentaService;
+	
+	@Autowired
+	private BancoService bancoService;
+	
+	@Autowired
+	private ClienteService clienteService;
 	
 	@Autowired
 	private ModelMapper model;
 	
 	@PostMapping
-	public void create(@RequestBody ClienteDto clienteDto, @RequestBody BancoDto bancoDto, @RequestBody double saldo) {
-		service.create(model.map(clienteDto, Cliente.class), 
-					   model.map(bancoDto, Banco.class), 
-					   saldo);
+	public ResponseEntity<String> create(@RequestBody CuentaDto dto) {
+		Optional<Cliente> cliente = clienteService.find(dto.getDniCliente());
+		Optional<Banco> banco = bancoService.find(Integer.parseInt(dto.getIdBanco()));
+		
+		if(!cliente.isPresent() || !banco.isPresent())
+			return new ResponseEntity<String>(HttpStatus.BAD_REQUEST);
+		else {
+			Cuenta cuenta = new Cuenta();
+			cuenta.setCliente(cliente.get());
+			cuenta.setBanco(banco.get());
+			cuenta.setSaldo(dto.getSaldo());
+			cuentaService.create(model.map(cuenta, Cuenta.class));
+		}
+		
+		return new ResponseEntity<String>(HttpStatus.OK);
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<CuentaDto> find(@PathVariable int id) {
-		Cuenta cuenta = service.find(id);
-		if(cuenta == null)
+	public ResponseEntity<CuentaDto> find(@PathVariable String id) {
+		///TODO fix id
+		CuentaDto cuenta = model.map(cuentaService.find(id), CuentaDto.class);
+		if(cuenta.equals(null))
 			return new ResponseEntity<CuentaDto>(HttpStatus.NOT_FOUND);
 		CuentaDto dto = model.map(cuenta, CuentaDto.class);
 		return new ResponseEntity<CuentaDto>(dto, HttpStatus.OK);
@@ -52,7 +71,7 @@ public class CuentaController {
 	
 	@GetMapping
 	public List<CuentaDto> findAll(){
-		List<CuentaDto> cuentas = service.findAll()
+		List<CuentaDto> cuentas = cuentaService.findAll()
 				.stream()
 				.map(c -> model.map(c, CuentaDto.class))
 				.collect(Collectors.toList());
@@ -63,11 +82,11 @@ public class CuentaController {
 	@PutMapping("/{id}")
 	public void update(@RequestBody CuentaDto dto) {
 		Cuenta cuenta = model.map(dto, Cuenta.class);
-		service.update(cuenta);
+		cuentaService.update(cuenta);
 	}
 
 	@DeleteMapping("/{id}")
 	public void remove(@PathVariable int id) {
-		service.remove(id);
+		cuentaService.remove(id);
 	}
 }

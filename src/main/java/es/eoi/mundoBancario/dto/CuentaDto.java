@@ -1,7 +1,5 @@
 package es.eoi.mundoBancario.dto;
 
-import es.eoi.mundoBancario.entity.Banco;
-import es.eoi.mundoBancario.entity.Cliente;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,12 +7,12 @@ import lombok.Setter;
 @Setter
 public class CuentaDto {
 
-	private int id;
+	private String id;
 	
 	private double saldo;
 
-	private Cliente cliente;
+	private String dniCliente;
 	
-	private Banco banco;	
+	private String idBanco;	
 
 }

@@ -1,6 +1,7 @@
 package es.eoi.mundoBancario.controller;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
@@ -32,7 +33,8 @@ public class BancoController {
 
 	@PostMapping
 	public ResponseEntity<String> create(@RequestBody BancoDto banco) {
-		if(service.find(banco.getId())!= null)
+		Banco banc = model.map(banco, Banco.class);
+		if(!service.find(banc.getId()).equals(null))
 			return new ResponseEntity<>(HttpStatus.CONFLICT);
 		else {			
 			service.create(model.map(banco, Banco.class));
@@ -42,10 +44,10 @@ public class BancoController {
 
 	@GetMapping("/{id}")
 	public ResponseEntity<BancoDto> find(@PathVariable int id) {
-		Banco banco = service.find(id);
-		if(banco == null)
+		Optional<Banco> banco = service.find(id);
+		if(!banco.isPresent())
 			return new ResponseEntity<BancoDto>(HttpStatus.NOT_FOUND);
-		BancoDto dto = model.map(banco, BancoDto.class);
+		BancoDto dto = model.map(banco.get(), BancoDto.class);
 		return new ResponseEntity<BancoDto>(dto, HttpStatus.OK);
 	}
 

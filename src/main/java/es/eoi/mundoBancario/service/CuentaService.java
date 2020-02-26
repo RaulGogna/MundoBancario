@@ -1,16 +1,15 @@
 package es.eoi.mundoBancario.service;
 
 import java.util.List;
+import java.util.Optional;
 
-import es.eoi.mundoBancario.entity.Banco;
-import es.eoi.mundoBancario.entity.Cliente;
 import es.eoi.mundoBancario.entity.Cuenta;
 
 public interface CuentaService {
 
-	void create(Cliente cliente, Banco banco, double saldo);
+	void create(Cuenta dto);
 
-	Cuenta find(int id);
+	Optional<Cuenta> find(String id);
 
 	List<Cuenta> findAll();
 

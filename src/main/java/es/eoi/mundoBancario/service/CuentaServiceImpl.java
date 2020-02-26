@@ -6,8 +6,6 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import es.eoi.mundoBancario.entity.Banco;
-import es.eoi.mundoBancario.entity.Cliente;
 import es.eoi.mundoBancario.entity.Cuenta;
 import es.eoi.mundoBancario.repository.CuentaRepository;
 
@@ -18,20 +16,17 @@ public class CuentaServiceImpl implements CuentaService{
 	private CuentaRepository repository;
 	
 	@Override
-	public void create(Cliente cliente, Banco banco, double saldo) {
+	public void create(Cuenta dto) {
 		Cuenta cuenta = new Cuenta();
-		cuenta.setCliente(cliente);
-		cuenta.setBanco(banco);
-		cuenta.setSaldo(saldo);
+		cuenta.setCliente(dto.getCliente());
+		cuenta.setBanco(dto.getBanco());
+		cuenta.setSaldo(dto.getSaldo());
 		repository.save(cuenta);
 	}
 
 	@Override
-	public Cuenta find(int id) {
-		Optional<Cuenta> cuenta = repository.findById(id);
-		if(!cuenta.isEmpty())
-			return cuenta.get();
-		return null;
+	public Optional<Cuenta> find(String id) {
+		return repository.findById(Integer.valueOf(id));
 	}
 	
 	@Override
@@ -39,12 +34,14 @@ public class CuentaServiceImpl implements CuentaService{
 		return repository.findAll();
 	}
 
-	
 	@Override
 	public void update(Cuenta dto) {
-		Cuenta cuenta = repository.findById(dto.getId()).get();
-		cuenta.setSaldo(dto.getSaldo());
-		repository.save(cuenta);
+		Optional<Cuenta> cuenta = this.find(String.valueOf(dto.getId()));
+		if(!cuenta.equals(null)) {
+			Cuenta cuent = cuenta.get();
+			cuent.setSaldo(dto.getSaldo());
+			repository.save(cuent);			
+		}
 	}
 
 	@Override

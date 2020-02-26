@@ -22,10 +22,10 @@ public class BancoServiceImpl implements BancoService{
 	}
 
 	@Override
-	public Banco find(int id) {
+	public Optional<Banco> find(int id) {
 		Optional<Banco> banco = repository.findById(id);
 		if(!banco.isEmpty())
-			return banco.get();
+			return banco;
 		return null;
 	}
 	

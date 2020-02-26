@@ -21,10 +21,10 @@ public class ClienteServiceImpl implements ClienteService{
 	}
 
 	@Override
-	public Cliente find(String dni) {
+	public Optional<Cliente> find(String dni) {
 		Optional<Cliente> client = repository.findById(dni);
 		if(!client.isEmpty())
-			return client.get();
+			return client;
 		return null;
 	}
 	
